@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1120">
+  <title>DevOps Deployment Dashboard · v1.0</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #e8effc;
+      background: radial-gradient(
+        circle at 80% -10%, #183764 0, transparent 34%
+      ), #0b1120;
+    }
+
+    .shell {
+      max-width: 1120px;
+      margin: auto;
+      padding: 0 28px 72px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid #25334d;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      background: #65e2b2;
+      color: #0b1120;
+      font-size: 19px;
+    }
+
+    .tag {
+      border: 1px solid #354662;
+      border-radius: 99px;
+      padding: 8px 13px;
+      color: #9cb1d0;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .hero { padding: 86px 0 54px; }
+
+    .eyebrow {
+      color: #65e2b2;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 800px;
+      margin: 16px 0;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.06;
+      letter-spacing: -.045em;
+    }
+
+    .intro {
+      max-width: 650px;
+      color: #aabbd4;
+      font-size: 18px;
+      line-height: 1.65;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card, .panel {
+      border: 1px solid #293957;
+      border-radius: 18px;
+      background: #121e33;
+    }
+
+    .card {
+      padding: 24px;
+      min-height: 160px;
+    }
+
+    .label {
+      color: #9cb1d0;
+      font-size: 13px;
+    }
+
+    .value {
+      margin: 24px 0 8px;
+      font-size: 29px;
+      font-weight: 750;
+      letter-spacing: -.03em;
+    }
+
+    .green { color: #65e2b2; }
+    .muted { color: #aabbd4; }
+
+    .detail {
+      color: #8fa3c1;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .panel {
+      margin-top: 24px;
+      padding: 29px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .note {
+      color: #8fa3c1;
+      font-size: 13px;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 27px;
+    }
+
+    .step {
+      padding: 13px 16px;
+      border-radius: 10px;
+      background: #1d304a;
+      border: 1px solid #365171;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .arrow {
+      color: #65e2b2;
+      font-weight: 900;
+    }
+
+    .history {
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .history li {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 17px 0;
+      border-top: 1px solid #293957;
+      color: #abbdd7;
+      font-size: 14px;
+    }
+
+    .history strong { color: #e8effc; }
+
+    footer {
+      margin-top: 42px;
+      color: #788ca9;
+      font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 0 18px 48px; }
+      .hero { padding: 55px 0 35px; }
+      .grid { grid-template-columns: 1fr; }
+      .card { min-height: 130px; }
+      .panel { padding: 21px; }
+      .panel-head { display: block; }
+      .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <span class="mark" aria-hidden="true">⌘</span>
+        <span>DevOps Lab</span>
+      </div>
+      <span class="tag">Учебное окружение</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Deployment dashboard / 01</div>
+        <h1>От коммита<br>до работающего сайта.</h1>
+        <p class="intro">
+          Этот сайт — объект учебного развёртывания. Следующий этап проекта
+          покажет, как изменение в GitHub проходит проверки и попадает
+          на сервер автоматически.
+        </p>
+      </section>
+
+      <section class="grid" aria-label="Состояние проекта">
+        <article class="card">
+          <div class="label">Текущая версия</div>
+          <div class="value green">v1.0</div>
+          <div class="detail">Значение задано в HTML</div>
+        </article>
+
+        <article class="card">
+          <div class="label">Развёртывание</div>
+          <div class="value">Локально</div>
+          <div class="detail">Nginx запущен в Docker на этом компьютере</div>
+        </article>
+
+        <article class="card">
+          <div class="label">Автоматическая проверка</div>
+          <div class="value muted">Ещё нет</div>
+          <div class="detail">GitHub Actions подключим на следующем этапе</div>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="flow-title">
+        <div class="panel-head">
+          <h2 id="flow-title">Путь изменения</h2>
+          <span class="note">Целевая схема · пока не запущена целиком</span>
+        </div>
+        <div class="flow" aria-label="Git, GitHub, CI/CD, Docker, Nginx, сайт">
+          <span class="step">Git</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="step">GitHub</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="step">CI/CD</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="step">Docker</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="step">Nginx</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="step">Сайт</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="history-title">
+        <div class="panel-head">
+          <h2 id="history-title">История версий</h2>
+          <span class="note">Пока заполняется вручную</span>
+        </div>
+        <ul class="history">
+          <li>
+            <span><strong>v1.0</strong> · Стартовая страница dashboard</span>
+            <span>Локальный этап</span>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      DevOps Deployment Dashboard · учебный проект ·
+      Статусы на этой странице не являются данными мониторинга.
+    </footer>
+  </div>
+</body>
+</html>
