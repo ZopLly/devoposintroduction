@@ -1,0 +1,37 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - feature/github-actions
+  pull_request:
+    branches:
+      - feature/github-actions
+
+jobs:
+  ci:
+    name: Build and test Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t devopsintroduction:test .
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+            --name devopsintroduction-test \
+            -p 8080:80 \
+            devopsintroduction:test
+
+      - name: Test website
+        run: |
+          sleep 3
+          curl --fail http://localhost:8080
+
+      - name: Stop Docker container
+        if: always()
+        run: docker rm -f devopsintroduction-test
