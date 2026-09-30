@@ -1,8 +1,7 @@
 services:
   web:
-    image: nginx:stable-alpine
+    build: .
+    image: ghcr.io/zoplly/devoposintroduction:latest
     ports:
       - "127.0.0.1:8080:80"
-    volumes:
-      - ./site:/usr/share/nginx/html:ro
     restart: unless-stopped

@@ -1,3 +1,3 @@
 FROM nginx:stable-alpine
-COPY site/ /ust/share/nginx/html
+COPY site/ /usr/share/nginx/html
 
