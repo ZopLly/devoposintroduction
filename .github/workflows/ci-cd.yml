@@ -67,43 +67,43 @@ jobs:
         run: |
           docker push ghcr.io/zoplly/devoposintroduction:latest
 
-  deploy:
-    name: Deploy to VPS
-    needs: cd
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Deploy application to VPS
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-
-          script: |
-            set -e
-
-            echo "Creating application directory..."
-            sudo mkdir -p /opt/devopsintroduction
-
-            echo "Creating production compose.yml..."
-            sudo tee /opt/devopsintroduction/compose.yml > /dev/null <<'EOF'
-            services:
-              web:
-                image: ghcr.io/zoplly/devoposintroduction:latest
-                ports:
-                  - "80:80"
-                restart: unless-stopped
-            EOF
-
-            echo "Pulling latest Docker image..."
-            cd /opt/devopsintroduction
-            sudo docker compose pull
-
-            echo "Restarting application..."
-            sudo docker compose up -d
-
-            echo "Deployment completed!"
-            sudo docker ps
+  # deploy:
+  #   name: Deploy to VPS
+  #   needs: cd
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     - name: Deploy application to VPS
+  #       uses: appleboy/ssh-action@v1.2.2
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USER }}
+  #         key: ${{ secrets.VPS_SSH_KEY }}
+  #
+  #         script: |
+  #           set -e
+  #
+  #           echo "Creating application directory..."
+  #           sudo mkdir -p /opt/devopsintroduction
+  #
+  #           echo "Creating production compose.yml..."
+  #           sudo tee /opt/devopsintroduction/compose.yml > /dev/null <<'EOF'
+  #           services:
+  #             web:
+  #               image: ghcr.io/zoplly/devoposintroduction:latest
+  #               ports:
+  #                 - "80:80"
+  #               restart: unless-stopped
+  #           EOF
+  #
+  #           echo "Pulling latest Docker image..."
+  #           cd /opt/devopsintroduction
+  #           sudo docker compose pull
+  #
+  #           echo "Restarting application..."
+  #           sudo docker compose up -d
+  #
+  #           echo "Deployment completed!"
+  #           sudo docker ps
