@@ -13,9 +13,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Check deployment script and Compose configuration
+        run: |
+          bash -n scripts/deploy-dashboard
+          python3 -m unittest discover -s tests -v
+          docker compose config -q
+
       - name: Build Docker image
         run: |
           docker build \
+            --build-arg BUILD_SHA="${{ github.sha }}" \
             -t devopsintroduction:test \
             .
 
@@ -28,8 +35,9 @@ jobs:
 
       - name: Test website
         run: |
-          sleep 3
-          curl --fail http://localhost:8080
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8080/ > /tmp/dashboard.html
+          grep -Fq 'DevOps Deployment Dashboard' /tmp/dashboard.html
+          test "$(curl --fail http://localhost:8080/build-sha.txt)" = "${{ github.sha }}"
 
       - name: Stop Docker container
         if: always()
@@ -60,50 +68,24 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            --build-arg BUILD_SHA="${{ github.sha }}" \
             -t ghcr.io/zoplly/devoposintroduction:latest \
+            -t ghcr.io/zoplly/devoposintroduction:sha-${{ github.sha }} \
             .
+
+      - name: Test release image before publishing
+        run: |
+          docker run -d --name dashboard-release-test -p 8080:80 \
+            ghcr.io/zoplly/devoposintroduction:sha-${{ github.sha }}
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8080/ > /tmp/dashboard-release.html
+          grep -Fq 'DevOps Deployment Dashboard' /tmp/dashboard-release.html
+          test "$(curl --fail http://localhost:8080/build-sha.txt)" = "${{ github.sha }}"
+
+      - name: Stop release test container
+        if: always()
+        run: docker rm -f dashboard-release-test
 
       - name: Push Docker image
         run: |
           docker push ghcr.io/zoplly/devoposintroduction:latest
-
-  # deploy:
-  #   name: Deploy to VPS
-  #   needs: cd
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-  #
-  #   runs-on: ubuntu-latest
-  #
-  #   steps:
-  #     - name: Deploy application to VPS
-  #       uses: appleboy/ssh-action@v1.2.2
-  #       with:
-  #         host: ${{ secrets.VPS_HOST }}
-  #         username: ${{ secrets.VPS_USER }}
-  #         key: ${{ secrets.VPS_SSH_KEY }}
-  #
-  #         script: |
-  #           set -e
-  #
-  #           echo "Creating application directory..."
-  #           sudo mkdir -p /opt/devopsintroduction
-  #
-  #           echo "Creating production compose.yml..."
-  #           sudo tee /opt/devopsintroduction/compose.yml > /dev/null <<'EOF'
-  #           services:
-  #             web:
-  #               image: ghcr.io/zoplly/devoposintroduction:latest
-  #               ports:
-  #                 - "80:80"
-  #               restart: unless-stopped
-  #           EOF
-  #
-  #           echo "Pulling latest Docker image..."
-  #           cd /opt/devopsintroduction
-  #           sudo docker compose pull
-  #
-  #           echo "Restarting application..."
-  #           sudo docker compose up -d
-  #
-  #           echo "Deployment completed!"
-  #           sudo docker ps
+          docker push ghcr.io/zoplly/devoposintroduction:sha-${{ github.sha }}

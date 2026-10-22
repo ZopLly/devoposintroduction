@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/zoplly/devoposintroduction:latest
+    image: ${WEB_IMAGE:-ghcr.io/zoplly/devoposintroduction:latest}
     ports:
       - "127.0.0.1:8080:80"
     restart: unless-stopped
