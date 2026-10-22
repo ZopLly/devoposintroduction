@@ -227,36 +227,36 @@
         <div class="eyebrow">Deployment dashboard / 01</div>
         <h1>От коммита<br>до работающего сайта.</h1>
         <p class="intro">
-          Этот сайт — объект учебного развёртывания. Следующий этап проекта
-          покажет, как изменение в GitHub проходит проверки и попадает
-          на сервер автоматически.
+          Этот сайт — объект учебного развёртывания. Изменения проходят
+          проверку в GitHub Actions, образ публикуется в GHCR, а нужная
+          версия запускается на сервере по ручной команде.
         </p>
       </section>
 
       <section class="grid" aria-label="Состояние проекта">
         <article class="card">
           <div class="label">Текущая версия</div>
-          <div class="value green">v1.1</div>
+          <div class="value green">v1.2</div>
           <div class="detail">Значение задано в HTML</div>
         </article>
 
         <article class="card">
           <div class="label">Развёртывание</div>
-          <div class="value">Локально</div>
-          <div class="detail">Nginx запущен в Docker на этом компьютере</div>
+          <div class="value">По команде</div>
+          <div class="detail">Docker Compose на учебном сервере</div>
         </article>
 
         <article class="card">
           <div class="label">Автоматическая проверка</div>
-          <div class="value muted">Ещё нет</div>
-          <div class="detail">GitHub Actions подключим на следующем этапе</div>
+          <div class="value green">GitHub Actions</div>
+          <div class="detail">Сборка образа и HTTP-проверка сайта</div>
         </article>
       </section>
 
       <section class="panel" aria-labelledby="flow-title">
         <div class="panel-head">
           <h2 id="flow-title">Путь изменения</h2>
-          <span class="note">Целевая схема · пока не запущена целиком</span>
+          <span class="note">Публикация автоматическая · deploy по команде</span>
         </div>
         <div class="flow" aria-label="Git, GitHub, CI/CD, Docker, Nginx, сайт">
           <span class="step">Git</span>
@@ -280,8 +280,8 @@
         </div>
         <ul class="history">
           <li>
-            <span><strong>v1.1</strong> · Стартовая страница dashboard</span>
-            <span>Локальный этап</span>
+            <span><strong>v1.2</strong> · Проверка версии при развёртывании</span>
+            <span>Ручной deploy по SHA</span>
           </li>
         </ul>
       </section>

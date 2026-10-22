@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+if [[ $# != 1 || ! $1 =~ ^[0-9a-f]{40}$ ]]; then
+  echo "Usage: bash scripts/deploy-dashboard <full 40-character commit SHA>" >&2
+  exit 2
+fi
+
+revision=$1
+project_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$project_dir"
+export WEB_IMAGE="ghcr.io/zoplly/devoposintroduction:sha-$revision"
+url=${DASHBOARD_URL:-http://127.0.0.1:8080}
+attempts=${HEALTH_ATTEMPTS:-15}
+delay=${HEALTH_DELAY:-2}
+[[ $attempts =~ ^[1-9][0-9]*$ ]] || { echo "Invalid HEALTH_ATTEMPTS" >&2; exit 2; }
+[[ $delay =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "Invalid HEALTH_DELAY" >&2; exit 2; }
+
+for dependency in docker curl flock; do
+  command -v "$dependency" >/dev/null || { echo "Missing dependency: $dependency" >&2; exit 1; }
+done
+
+# Every invocation from this checkout shares one lock, held until exit.
+exec 9>"$project_dir/.deploy.lock"
+flock -n 9 || { echo "Another deployment is running in this checkout" >&2; exit 1; }
+compose=(docker compose --project-directory "$project_dir" -f "$project_dir/compose.yml")
+diagnostics() {
+  echo "Deployment failed; no automatic rollback was performed." >&2
+  "${compose[@]}" ps >&2 || true
+  "${compose[@]}" logs --tail=80 web >&2 || true
+}
+trap diagnostics ERR
+
+"${compose[@]}" config -q
+# Only update the application image; monitoring updates are a separate operation.
+"${compose[@]}" pull web
+"${compose[@]}" up -d
+
+for ((attempt=1; attempt<=attempts; attempt++)); do
+  if actual=$(curl --fail --silent --show-error --connect-timeout 2 --max-time 5 "${url%/}/build-sha.txt") \
+    && [[ $actual == "$revision" ]] \
+    && page=$(curl --fail --silent --show-error --connect-timeout 2 --max-time 5 "${url%/}/") \
+    && [[ $page == *"DevOps Deployment Dashboard"* ]]; then
+    echo "Deployment verified: $revision"
+    exit 0
+  fi
+  if ((attempt < attempts)); then sleep "$delay"; fi
+done
+
+echo "Website did not serve the requested revision and project page after $attempts attempts." >&2
+diagnostics
+exit 1
